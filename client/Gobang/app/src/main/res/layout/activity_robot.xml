@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+    <com.codecos.gobang.GobangView
+        android:id="@+id/gobangview"
+        android:layout_width="fill_parent" 
+        android:layout_height="fill_parent"
+        tileSize="24"
+        android:layout_centerInParent="true"
+        />
+
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+         >
+
+        <Button
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:text="认输"
+            android:id="@+id/restartBtn"
+            />
+        <Button
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:text="主菜单"
+            android:layout_alignParentRight="true"
+            android:id="@+id/menuBtn"
+            />
+        <TextView
+            android:id="@+id/text" 
+            android:visibility="visible" 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center_horizontal" 
+            android:textColor="#ffff0000"
+            android:textStyle="bold"
+            android:textSize="24sp" />
+            
+        </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        >
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            />
+
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+</FrameLayout>

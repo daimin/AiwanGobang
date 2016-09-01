@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.codecos.gobang"
+    android:versionCode="3"
+    android:versionName="1.0.2"
+    >
+    <uses-sdk
+        android:minSdkVersion="9"
+        android:targetSdkVersion="17" />
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/icon"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".RobotActivity"></activity>
+        <activity android:name=".AboutActivity"></activity>
+        <activity android:name=".NetActivity"></activity>
+        <service android:enabled="true" android:name=".Music" />
+            <meta-data
+                android:name="UMENG_APPKEY"
+                android:value="551ff654fd98c5a032000c1d" >
+            </meta-data>
+            <meta-data
+                android:name="UMENG_CHANNEL"
+                android:value="baidu" >
+            </meta-data>
+
+    </application>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+
+</manifest>

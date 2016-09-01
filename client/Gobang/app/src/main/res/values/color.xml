@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <color name="transparent">#00000000</color>
+  <color name="lightgrey">#FFF5F5F5</color>
+  <drawable name="white">#FFFFFFFF</drawable>
+  <drawable name="black">#000000</drawable>
+  <drawable name="blue">#8888DD</drawable>
+  <drawable name="mi">#FEFFF5</drawable>
+  <drawable name="sblue">#BBDDEE</drawable>
+  <drawable name="dblue">#8899AA</drawable>
+  <drawable name="mblue">#3C70BC</drawable>
+  <drawable name="brown">#D7D7D7</drawable>
+  <drawable name="green">#23F38E</drawable>
+  <drawable name="tgreen">#AA00FF00</drawable>
+  <drawable name="tred">#FFFFAAAA</drawable>
+  <drawable name="dred">#FFFF8888</drawable>
+  <color name="dgrid">#FF60281E</color>
+  <color name="dgridmo">#FF50616D</color>
+  <color name="lise">#FF60281E</color>
+</resources>
