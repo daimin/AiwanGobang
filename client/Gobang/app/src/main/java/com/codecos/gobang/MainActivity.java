@@ -84,7 +84,7 @@ public class MainActivity extends Activity {
                     editor.putInt("music", 1);
                 }
                 isMusicOpen = !isMusicOpen;
-                editor.commit();
+                editor.apply();
             }
         });
         aboutBtn = (Button) this.findViewById(R.id.aboutBtn);

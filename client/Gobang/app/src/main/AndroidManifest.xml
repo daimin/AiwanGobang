@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.codecos.gobang"
-    android:versionCode="3"
-    android:versionName="1.0.2"
+    android:versionCode="4"
+    android:versionName="1.0.3"
     >
     <uses-sdk
         android:minSdkVersion="9"
-        android:targetSdkVersion="17" />
+        android:targetSdkVersion="23" />
     <application
         android:allowBackup="true"
         android:icon="@drawable/icon"
@@ -21,9 +21,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".RobotActivity"></activity>
-        <activity android:name=".AboutActivity"></activity>
-        <activity android:name=".NetActivity"></activity>
+        <activity android:name=".RobotActivity"/>
+        <activity android:name=".AboutActivity"/>
+        <activity android:name=".NetActivity"/>
+        <activity android:name=".LoginActivity"/>
         <service android:enabled="true" android:name=".Music" />
             <meta-data
                 android:name="UMENG_APPKEY"

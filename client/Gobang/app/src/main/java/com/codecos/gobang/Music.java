@@ -7,6 +7,8 @@ import android.os.IBinder;
 
 import com.codecos.gobang.R;
 
+import java.io.IOException;
+
 public class Music extends Service {
 
     private MediaPlayer mp;
@@ -23,11 +25,21 @@ public class Music extends Service {
         mp=MediaPlayer.create(this, R.raw.bj);
  
     }
-    @Override  
-    public void onStart(Intent intent, int startId) {
-        super.onStart(intent, startId);
-        mp.start(); 
-    } 
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        mp.stop();
+        mp.setLooping(true);
+        try {
+            mp.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mp.seekTo(0);
+        mp.start();
+        return super.onStartCommand(intent, flags, startId);
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();

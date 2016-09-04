@@ -112,49 +112,10 @@ public class NetActivity extends Activity {
         } catch (FileNotFoundException e) {
             Log.i(this.getClass().getSimpleName(), e.getMessage());
             userEditText = new EditText(this);
-            // 弹出一个弹出框
-            new  AlertDialog.Builder(NetActivity.this)
-                    .setTitle("请输入您的用户名" )
-                    .setIcon(android.R.drawable.ic_input_add)
-                    .setView(NetActivity.this.userEditText)
-                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int ii) {
-                            String errmsg = "";
-                            String username = NetActivity.this.userEditText.getText().toString().trim();
-                            if (username.length() == 0 || username.length() < 2 || username.length() > 20) {
-                                errmsg = "用户名不得小于2个字符或大于20个字符";
-                            } else {
-                                boolean allowed = true;
-                                for (int i = 0; i < NAME_NOT_ALLOWEDS.length(); i++) {
-                                    if (username.contains(NAME_NOT_ALLOWEDS.charAt(i) + "")) {
-                                        allowed = false;
-                                        break;
-                                    }
-                                }
-
-                                if (!allowed) {
-                                    errmsg = "用户名不得包含 " + NAME_NOT_ALLOWEDS;
-                                }
-
-                            }
-
-                            if (errmsg != "") {
-                                Toast.makeText(NetActivity.this, errmsg, Toast.LENGTH_LONG).show();
-                                dialogInterface.dismiss();
-                                NetActivity.this.mInitNetHandler.sendEmptyMessage(1);
-                            } else {
-                                // 开始和服务器通信
-                                dialogInterface.dismiss();
-
-                                NetActivity.this.mInitNetHandler.sendMessage(CommUtil.getMessage("username", username, 2));
-
-                            }
-
-                        }
-                    }).setCancelable(false) // 使当前dialog不会因为点击activity其它地方而取消
-                    .show();
+            Intent intent = new Intent();
+            intent.setClass(NetActivity.this, LoginActivity.class);
+            startActivity(intent);
+            this.finish();
         }finally {
             try {
                 if(fos != null)
@@ -178,20 +139,8 @@ public class NetActivity extends Activity {
             if(msg.what == INIT_NET_WHAT_CHECK_NET){
                 this.client.checkIsNetOn();
             } else if(msg.what == INIT_NET_WHAT_USER_INIT){
-                Bundle data = msg.getData();
-                if(!data.isEmpty()) {
-                    NetMessage result = CommUtil.getResult(data);
-                    String res = CommUtil.checkProtoResult(result);
-                    if(res.length() > 0){
-                        this.client.endActivityDialog("提示", res, "返回");
-                    }else{
-                        this.client.initUser();
-                    }
-                }else {
-                    this.client.initUser();
-                }
+                this.client.initUser();
             } else if(msg.what == INIT_NET_WHAT_USER_CHECK){
-
                 Bundle data = msg.getData();
                 String username = data.getString("username");
 

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@drawable/gobang_bg2"
+        android:orientation="vertical"
+        android:gravity="center_vertical|center_horizontal"
+        android:baselineAligned="true"
+        android:weightSum="1">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical|center_horizontal"
+            android:orientation="vertical"
+            android:layout_marginTop="-80dp"
+            >
+            <EditText
+                android:layout_width="300dp"
+                android:layout_height="48dp"
+                android:id="@+id/nameET"
+                android:layout_marginBottom="24dp"
+                android:focusable="true"
+                android:inputType="text"
+                android:background="@drawable/login_edittext_background"
+                android:hint="用户名"
+                android:textSize="24sp"
+                android:layout_weight="0.04"
+                android:paddingLeft="8dp"
+                android:textColor="@android:color/background_dark"
+                />
+            <EditText
+                android:layout_width="300dp"
+                android:layout_height="48dp"
+                android:id="@+id/passwdET"
+                android:layout_marginBottom="24dp"
+                android:inputType="textVisiblePassword"
+                android:background="@drawable/login_edittext_background"
+                android:hint="密码"
+                android:textSize="24sp"
+                android:layout_weight="0.04"
+                android:paddingLeft="8dp"
+                android:textColor="@android:color/background_dark"
+                />
+            <Button
+                android:layout_width="240dp"
+                android:layout_height="wrap_content"
+                android:text="登          录"
+                android:id="@+id/loginBtn"
+                android:layout_marginBottom="24dp"
+                />
+
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+</FrameLayout>

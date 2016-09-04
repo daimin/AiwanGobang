@@ -77,11 +77,11 @@ public class GobangView extends View {
 
     private CharSequence mText;
     private CharSequence STRING_WIN =   "   真厉害，大侠你赢了！ \n" +
-                                        "   点击[确认]开始新游戏。";
+                                        "   点击【确认】开始新游戏。";
     private CharSequence STRING_LOSE =  "   大侠请重头来过！ \n" +
-                                        "   点击[确认]开始新游戏。";
+                                        "   点击【确认】开始新游戏。";
     private CharSequence STRING_EQUAL = "   酷！你们是平手！ \n" +
-                                        "   点击[确认]开始新游戏。";
+                                        "   点击【确认】开始新游戏。";
     private Paint mPaint;
     private boolean bitmapLoaded = false;
 
@@ -130,8 +130,6 @@ public class GobangView extends View {
             }
 
         }
-
-
     }
 
     public void setTextView(TextView tv) {
