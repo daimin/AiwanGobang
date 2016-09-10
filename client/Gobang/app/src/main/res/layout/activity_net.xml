@@ -7,8 +7,8 @@
         android:layout_height="fill_parent">
 
     <com.codecos.gobang.GobangNetView
-        android:id="@+id/gobangview"
-        android:layout_width="fill_parent" 
+        android:id="@+id/gobangnetview"
+        android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         tileSize="24"
         android:layout_centerInParent="true"
@@ -42,7 +42,8 @@
             android:gravity="center_horizontal" 
             android:textColor="#ffff0000"
             android:textStyle="bold"
-            android:textSize="24sp" />
+            android:textSize="24sp"
+            />
             
         </RelativeLayout>
         <RelativeLayout

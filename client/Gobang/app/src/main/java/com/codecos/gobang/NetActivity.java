@@ -48,7 +48,7 @@ public class NetActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_net);
 
-        gbv = (GobangNetView) this.findViewById(R.id.gobangview);
+        gbv = (GobangNetView) this.findViewById(R.id.gobangnetview);
         gbv.setTextView((TextView) this.findViewById(R.id.text));
         restartBtn = (Button) this.findViewById(R.id.restartBtn);
         restartBtn.setOnClickListener(new View.OnClickListener() {

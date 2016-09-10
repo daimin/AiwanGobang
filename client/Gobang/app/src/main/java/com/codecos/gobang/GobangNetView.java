@@ -9,8 +9,11 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -77,6 +80,7 @@ public class GobangNetView extends View {
     private ChessPoint[] fiveBetterPoints = new ChessPoint[5];
 
     private Bitmap bgImage;
+    private Bitmap vsImage;
 
 
     private int  bgHoff;
@@ -117,7 +121,6 @@ public class GobangNetView extends View {
 
         }
 
-
     }
 
     public void setTextView(TextView tv) {
@@ -131,6 +134,10 @@ public class GobangNetView extends View {
         bgImage = BitmapFactory.decodeResource(this.getResources(),
                     R.drawable.gobang_bg2);
         bgImage = bgImage.copy(Bitmap.Config.ARGB_8888, true);
+
+        vsImage = BitmapFactory.decodeResource(this.getResources(),
+                R.drawable.vs);
+
         int bgW = bgImage.getWidth();
         int bgH = bgImage.getHeight();
         bgHoff = h - bgH;
@@ -157,7 +164,6 @@ public class GobangNetView extends View {
                     Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bitmap);
             Resources r = this.getContext().getResources();
-
             Drawable tile = r.getDrawable(R.drawable.chess1);
             tile.setBounds(0, 0, chess_dia, chess_dia);
             tile.draw(canvas);
@@ -174,6 +180,7 @@ public class GobangNetView extends View {
             tile = r.getDrawable(R.drawable.chess2);
             tile.setBounds(0, 0, chess_dia, chess_dia);
             tile.draw(canvas);
+
             mChessBW[1] = bitmap;
             bitmapLoaded = true;
 
@@ -219,8 +226,6 @@ public class GobangNetView extends View {
                                     //showTextView(mText);
                                 }
                                 whoTurn = BLACK;
-                                // 电脑开始分析
-                                analyzeChess();
 
                                 // 黑棋下了之后开始分析黑棋此时是否胜利。
                                 if (checkWin(BLACK)) { // 如果是黑棋赢了
@@ -290,11 +295,6 @@ public class GobangNetView extends View {
 
    }
 
-    private void clearArray(int[] array) {
-        for (int i = 0; i < array.length; i++)
-            array[i] = 0;
-    }
-
     private void clearChessArray() {
         int i, j;
         for (i = 0; i < CHESS_GRID; i++) {
@@ -318,354 +318,8 @@ public class GobangNetView extends View {
 
     }
 
-    /**
-     * 分析具体的方向
-     *
-     * @param tmpChess
-     *            该方向的棋型
-     */
-    private int analyzeDir(int[] tmpChess, int isWho) {
-        // 如果满足活四，就不活三、满足活三就不冲四，如此...
-        int score = 0;
-        if (cfUtil.analyzeWulian(tmpChess, isWho)) {
-            score = ChessFormUtil.WU_LIAN;
-        } else if (cfUtil.analyzeHuosi(tmpChess, isWho)) {
-            score = ChessFormUtil.HUO_SI;
-        } else if (cfUtil.analyzeHuosan(tmpChess, isWho)) {
-            score = ChessFormUtil.HUO_SAN;
-        } else if (cfUtil.analyzeChongsi(tmpChess, isWho)) {
-            score = ChessFormUtil.CHONG_SI;
-        } else if (cfUtil.analyzeHuoEr(tmpChess, isWho)) {
-            score = ChessFormUtil.HUO_ER;
-        } else if (cfUtil.analyzeMianSan(tmpChess, isWho)) {
-            score = ChessFormUtil.MIAN_SAN;
-        } else if (cfUtil.analyzeMianEr(tmpChess, isWho)) {
-            score = ChessFormUtil.MIAN_ER;
-        } else {
-            score = 0;
-        }
-
-        return score;
-    }
-
-    /**
-     * 电脑智能分析最好的下棋地点
-     */
-    private void analyzeChess() {
-        if (whoTurn == BLACK) {
-            // 与当前棋子相关需要分析棋型的棋子数组
-            clearChessArray();
-            analyzeChessMater(computerTable, BLACK, 0, 0, CHESS_GRID,
-                    CHESS_GRID);
-            // 分析玩家的棋型/////////////////////////////////////////////////////
-            analyzeChessMater(playerTable, WHITE, 0, 0, CHESS_GRID, CHESS_GRID);
-
-            ChessPoint bestPoint = findBestPoint();
-            // Log.v("Best Chess", "x = " + bestPoint.x + ", y = " +
-            // bestPoint.y);
-            mChessTable[bestPoint.y][bestPoint.x] = BLACK;
-
-        }
-    }
-
-    /**
-     * 分析指定的棋型
-     *
-     * @param materChess
-     *            棋型数组
-     */
-    private void analyzeChessMater(int[][][] materChess, int isWho, int sx,
-                                   int sy, int ex, int ey) {
-        int[] tmpChess = new int[ChessFormUtil.ANALYZE_LEN];
-
-        // 具体代码...
-        int i, j, k;
-        // 分析电脑的棋型/////////////////////////////////////////////////////
-        for (i = sy; i < ey; i++) {
-            for (j = sx; j < ex; j++) {
-                if (mChessTable[i][j] == 0) {
-                    // 找出横向的棋子的棋型
-                    clearArray(tmpChess);
-                    for (k = 1; k <= ChessFormUtil.HALF_LEN; k++) {
-                        if ((j + k) < ex) {
-                            tmpChess[ChessFormUtil.HALF_LEN + (k - 1)] = mChessTable[i][j
-                                    + k];
-                        }
-                        if ((j - k) >= 0) {
-                            tmpChess[ChessFormUtil.HALF_LEN - k] = mChessTable[i][j
-                                    - k];
-                        }
-                    }
-                    materChess[i][j][0] = analyzeDir(tmpChess, isWho);
-                    // 找出竖向的棋子的棋型
-                    clearArray(tmpChess);
-
-                    for (k = 1; k <= ChessFormUtil.HALF_LEN; k++) {
-                        if ((i + k) < ey) {
-                            tmpChess[ChessFormUtil.HALF_LEN + (k - 1)] = mChessTable[i
-                                    + k][j];
-                        }
-                        if ((i - k) >= 0) {
-                            tmpChess[ChessFormUtil.HALF_LEN - k] = mChessTable[i
-                                    - k][j];
-                        }
-                    }
-                    materChess[i][j][1] = analyzeDir(tmpChess, isWho);
-                    // 找出左斜的棋子的棋型
-                    clearArray(tmpChess);
-                    for (k = 1; k <= ChessFormUtil.HALF_LEN; k++) {
-                        if ((i + k) < ey && (j + k) < ex) {
-                            tmpChess[ChessFormUtil.HALF_LEN + (k - 1)] = mChessTable[i
-                                    + k][j + k];
-                        }
-                        if ((i - k) >= 0 && (j - k) >= 0) {
-                            tmpChess[ChessFormUtil.HALF_LEN - k] = mChessTable[i
-                                    - k][j - k];
-                        }
-                    }
-                    materChess[i][j][2] = analyzeDir(tmpChess, isWho);
-                    // 找出右斜的棋子的棋型
-                    clearArray(tmpChess);
-                    for (k = 1; k <= ChessFormUtil.HALF_LEN; k++) {
-                        if ((i - k) >= 0 && (j + k) < ex) {
-                            tmpChess[ChessFormUtil.HALF_LEN + (k - 1)] = mChessTable[i
-                                    - k][j + k];
-                        }
-                        if ((i + k) < ey && (j - k) >= 0) {
-                            tmpChess[ChessFormUtil.HALF_LEN - k] = mChessTable[i
-                                    + k][j - k];
-                        }
-                    }
-                    materChess[i][j][3] = analyzeDir(tmpChess, isWho);
-                    // mChessTable[i][]
-                    // 分析最大分数，保存该点坐标...
-                }
-            }
-        }
-    }
-
-    private void insertBetterChessPoint(ChessPoint cp) {
-        int i, j = 0;
-        ChessPoint tmpcp = null;
-        for (i = 0; i < 5; i++) {
-            if (null != fiveBetterPoints[i]) {
-                if (cp.score > fiveBetterPoints[i].score) {
-                    tmpcp = fiveBetterPoints[i];
-                    fiveBetterPoints[i] = cp;
-                    for (j = i; j < 5; j++) {
-                        if (null != fiveBetterPoints[j]) {
-                            if (tmpcp.score > fiveBetterPoints[j].score) {
-                                tmpcp = fiveBetterPoints[j];
-                                fiveBetterPoints[j] = tmpcp;
-                            }
-                        } else {
-                            fiveBetterPoints[j] = tmpcp;
-                            break;
-                        }
-                    }
-                    break;
-                }
-            } else {
-                fiveBetterPoints[i] = cp;
-                break;
-            }
-        }
-
-        tmpcp = null;
-    }
-
-    /**
-     * 找到最佳点
-     *
-     * @return 最佳点
-     */
-    private ChessPoint findBestPoint() {
-        int i, j;
-        ChessPoint point;
-        int maxScore = 0;
-        int tmpScore = 0;
-        for (i = 0; i < CHESS_GRID; i++) {
-            for (j = 0; j < CHESS_GRID; j++) {
-                // 电脑比较
-                tmpScore = computerTable[i][j][0];
-                tmpScore += computerTable[i][j][1];
-                tmpScore += computerTable[i][j][2];
-                tmpScore += computerTable[i][j][3];
-                if (maxScore <= tmpScore) {
-                    maxScore = tmpScore;
-                    point = new ChessPoint();
-                    point.x = j;
-                    point.y = i;
-                    point.score = maxScore;
-                    // 不能容忍0作为最小分数插入，因为
-                    // 哪怕该点有棋，它的分数也是为0
-                    // 不过这里不做判断就会将有棋的地方替换掉
-                    if(maxScore > 0){
-                        insertBetterChessPoint(point);
-                    }
-
-                }
-                // 玩家比较
-                tmpScore = playerTable[i][j][0];
-                tmpScore += playerTable[i][j][1];
-                tmpScore += playerTable[i][j][2];
-                tmpScore += playerTable[i][j][3];
-                if (maxScore <= tmpScore) {
-                    maxScore = tmpScore;
-                    point = new ChessPoint();
-                    point.x = j;
-                    point.y = i;
-                    point.score = maxScore;
-                    if(maxScore > 0){
-                        insertBetterChessPoint(point);
-                    }
-                }
-
-            }
-        }
-
-        // Log.v("cmaxpoint = ", "" + cMaxScore);
-        // Log.v("pmaxpoint = ", "" + pMaxScore);
-
-        return analyzeBetterChess();
-    }
-
-    /**
-     * 找到几点中比较好的点
-     *
-     * @return 最佳点
-     */
-    private ChessPoint findBetterPoint(int sx, int sy, int ex, int ey) {
-        int i, j;
-        ChessPoint point;
-        int maxScore = 0;
-        int tmpScore = 0;
-        for (i = sy; i < ey; i++) {
-            for (j = sx; j < ex; j++) {
-                // 电脑比较
-                tmpScore = computerTable[i][j][0];
-                tmpScore += computerTable[i][j][1];
-                tmpScore += computerTable[i][j][2];
-                tmpScore += computerTable[i][j][3];
-                if (maxScore <= tmpScore) {
-                    maxScore = tmpScore;
-                    point = new ChessPoint();
-                    point.x = j;
-                    point.y = i;
-                    point.score = maxScore;
-                    insertBetterChessPoint(point);
-                }
-                // 玩家比较
-                tmpScore = playerTable[i][j][0];
-                tmpScore += playerTable[i][j][1];
-                tmpScore += playerTable[i][j][2];
-                tmpScore += playerTable[i][j][3];
-                if (maxScore <= tmpScore) {
-                    maxScore = tmpScore;
-                    point = new ChessPoint();
-                    point.x = j;
-                    point.y = i;
-                    point.score = maxScore;
-                    insertBetterChessPoint(point);
-                }
-
-            }
-        }
-
-        return fiveBetterPoints[0];
-    }
-
-    private ChessPoint analyzeBetterChess() {
-        if (fiveBetterPoints[0].score > 30) {
-            return fiveBetterPoints[0];
-        } else {
-            ChessPoint betterPoint = null;
-            ChessPoint tmpPoint = null;
-
-            int goodIdx = 0;
-            int i = 0;
-            int startx, starty, endx, endy;
-            ChessPoint[] fbpTmp = new ChessPoint[5];
-            for (i = 0; i < 5; i++) {
-                fbpTmp[i] = fiveBetterPoints[i];
-            }
-
-            for (i = 0; i < 5; i++) {
-                if (fbpTmp[i] == null)
-                    break;
-                mChessTable[fbpTmp[i].y][fbpTmp[i].x] = BLACK;
-                clearChessArray();
-
-                startx = fbpTmp[i].x - 5;
-                starty = fbpTmp[i].y - 5;
-
-                if (startx < 0) {
-                    startx = 0;
-                }
-
-                if (starty < 0) {
-                    starty = 0;
-                }
-
-                endx = startx + 10;
-                endy = starty + 10;
-
-                if (endx > CHESS_GRID) {
-                    endx = CHESS_GRID;
-                }
-
-                if (endy > CHESS_GRID) {
-                    endy = CHESS_GRID;
-                }
-                analyzeChessMater(computerTable, BLACK, startx, starty, endx,
-                        endy);
-                // 分析玩家的棋型/////////////////////////////////////////////////////
-                analyzeChessMater(playerTable, WHITE, startx, starty, endx,
-                        endy);
-                tmpPoint = findBetterPoint(startx, starty, endx, endy);
-                if (betterPoint != null) {
-                    if (betterPoint.score <= tmpPoint.score) {
-                        betterPoint = tmpPoint;
-                        goodIdx = i;
-                    }
-                } else {
-                    betterPoint = tmpPoint;
-                    goodIdx = i;
-                }
-
-                mChessTable[fbpTmp[i].y][fbpTmp[i].x] = 0;
-            }
-            return fbpTmp[goodIdx];
-        }
-
-    }
-
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent msg) {
-        Log.e("KeyEvent.KEYCODE_DPAD_CENTER", " " + keyCode);
-        /*
-        if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
-            switch (mGameState) {
-                case GAMESTATE_PRE:
-                    break;
-                case GAMESTATE_RUN:
-                    break;
-                case GAMESTATE_PAUSE:
-                    break;
-                case GAMESTATE_END: {// 游戏结束后，按CENTER键继续
-
-                    Log.e("Fire Key Pressed:::", "FIRE");
-                    mGameState = GAMESTATE_RUN;
-                    this.setVisibility(View.VISIBLE);
-                    this.mStatusTextView.setVisibility(View.INVISIBLE);
-                    this.init();
-                    this.invalidate();
-
-                }
-                break;
-            }
-        }
-        */
         return super.onKeyDown(keyCode, msg);
     }
 
@@ -713,6 +367,8 @@ public class GobangNetView extends View {
                     mStartY + grid_width * GRID_SIZE, paintRect);
         }
 
+        this.drawFightBoard(canvas);
+
         mPaint = new Paint();
         // 画棋子
         if (bitmapLoaded) {
@@ -736,6 +392,91 @@ public class GobangNetView extends View {
                 }
             }
         }
+    }
+
+    /**
+     * 绘制对战面板
+     */
+    private void drawFightBoard(Canvas canvas){
+        Paint boardPaint = new Paint();
+
+        boardPaint.setColor(getResources().getColor(R.color.dgridmo));
+        boardPaint.setAntiAlias(true);
+        boardPaint.setStyle(Style.STROKE);
+
+        // 画棋盘的外边框
+        boardPaint.setStrokeWidth(8);
+
+        int boardWidth = grid_width * (GRID_SIZE - 4) / 2;
+        int boardHeight = grid_width * 5;
+
+        int startY = GRID_SIZE * grid_width + 3 * grid_width;
+        int startX = grid_width / 2;
+
+        Player p1 = new Player("无名", "98胜14负", 20000);
+        Player p2 = new Player("东方", "68胜20负", 50000);
+        boardPaint.setColor(Color.argb(255, p1.rgbColor[0], p1.rgbColor[1], p1.rgbColor[2]));
+        canvas.drawRect(startX, startY, startX + boardWidth,
+                startY + boardHeight, boardPaint);
+
+
+
+        this.drawPlayerInfo(canvas, startX * 2, startY + grid_width, p1);
+
+        this.drawVsString(canvas, startX + boardWidth + (int)(grid_width * 0.6), (int)(startY + grid_width * 1.5));
+
+        int start2X = startX + boardWidth + 3 * grid_width;
+
+        boardPaint.setColor(Color.argb(255, p2.rgbColor[0], p2.rgbColor[1], p2.rgbColor[2]));
+        canvas.drawRect(start2X, startY, start2X + boardWidth,
+                startY + boardHeight, boardPaint);
+
+        this.drawPlayerInfo(canvas, start2X + grid_width/2, startY + grid_width, p2);
+    }
+
+    private void drawVsString(Canvas canvas, int x, int y) {
+        Paint textpaint = new Paint();
+        canvas.drawBitmap(vsImage, x, y, textpaint);
+
+    }
+
+    private void drawPlayerInfo(Canvas canvas, int strStartX, int strStartY, Player player){
+        Paint textpaint = new Paint();
+        textpaint.setColor(Color.BLACK);
+        textpaint.setTypeface(Typeface.MONOSPACE);
+        textpaint.setAntiAlias(true);//去除锯齿
+        textpaint.setFilterBitmap(true);//对位图进行滤波处理
+        int fontsize = (int)(grid_width * 0.5);
+        textpaint.setTextSize(fontsize);
+
+        canvas.drawText("姓名: " + player.name, strStartX, strStartY, textpaint);
+        canvas.drawText("战绩: " + player.dp, strStartX, strStartY + grid_width , textpaint);
+        canvas.drawText("称号: ", strStartX, strStartY + 2 * grid_width, textpaint);
+
+        textpaint.setColor(Color.argb(255, player.rgbColor[0]/3, player.rgbColor[1]/3, player.rgbColor[2]/3));
+        textpaint.setStyle(Style.FILL);
+        int titleTextSize = (int)(fontsize * 1.2);
+        RectF titleBkRect = new RectF(
+                strStartX + fontsize * 3,
+                strStartY + grid_width + titleTextSize/2,
+                strStartX + fontsize * 3 + (int)(titleTextSize * 2.1),
+                strStartY + 2 * grid_width + titleTextSize/2
+        );
+        canvas.drawRoundRect(
+                titleBkRect,
+                12,12,
+                textpaint);
+
+        textpaint.setColor(Color.argb(255, player.rgbColor[0], player.rgbColor[1], player.rgbColor[2]));
+        Typeface font = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD);
+        textpaint.setTypeface(font);
+        textpaint.setTextSize(titleTextSize);
+
+        canvas.drawText(player.title, strStartX + fontsize * 3, strStartY + 2 * grid_width, textpaint);
+        textpaint.setColor(Color.BLACK);
+        textpaint.setTypeface(Typeface.MONOSPACE);
+        textpaint.setTextSize(fontsize);
+        canvas.drawText("积分: " + player.score, strStartX, strStartY + 3 * grid_width, textpaint);
     }
 
     private void putChess(int x, int y, int blackwhite) {
@@ -810,7 +551,7 @@ public class GobangNetView extends View {
                     mNotEmpty += 1;
             }
 
-        if (mNotEmpty == (GRID_SIZE - 1) * (GRID_SIZE - 1))
+        if(mNotEmpty == (GRID_SIZE - 1) * (GRID_SIZE - 1))
             return true;
         else
             return false;
