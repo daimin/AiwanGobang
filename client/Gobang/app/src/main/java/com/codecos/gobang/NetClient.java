@@ -45,8 +45,8 @@ public class NetClient {
     /*
       网络配置
      */
-    public static final int PORT = 60001;
-    public static final String HOST = "192.168.56.1";
+    public static final int PORT = 14395;
+    public static final String HOST = "127.0.0.1";
 
     //################################################################
 
@@ -164,7 +164,6 @@ public class NetClient {
 
         private NetMessage resolve(byte[] strBuf){
 
-            //byte []strBuf = data.toString().getBytes();
             ByteBuffer buff = ByteBuffer.wrap(strBuf);
             short dataType = buff.getShort();
             int dataLen = buff.getInt();
@@ -182,7 +181,7 @@ public class NetClient {
                 byte[] buff = new byte[1024];
                 bao = new ByteArrayOutputStream();
 				while (connected) {
-                    while((len=mBufferedInputStream.read(buff)) != -1){
+                    while(mBufferedInputStream.read(buff) != -1){
                         bao.write(buff);
                         if(mBufferedInputStream.available() <= 0){
                             break;
