@@ -79,7 +79,11 @@ public class NetActivity extends Activity {
             new Thread(){
                 @Override
                 public void run() {
-                    netClient = new NetClient(NetActivity.this, mInitNetHandler);
+                    try {
+                        netClient = new NetClient(NetActivity.this, mInitNetHandler);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     netClient.send(NetClient.C2L_VERSION, NetClient.PROTO_VERSION, INIT_NET_WHAT_USER_INIT);
                 }
             }.start();

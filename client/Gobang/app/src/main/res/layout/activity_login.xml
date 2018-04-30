@@ -25,25 +25,13 @@
                 android:focusable="true"
                 android:inputType="text"
                 android:background="@drawable/login_edittext_background"
-                android:hint="用户名"
+                android:hint="请输入用户名"
                 android:textSize="24sp"
                 android:layout_weight="0.04"
                 android:paddingLeft="8dp"
                 android:textColor="@android:color/background_dark"
                 />
-            <EditText
-                android:layout_width="300dp"
-                android:layout_height="48dp"
-                android:id="@+id/passwdET"
-                android:layout_marginBottom="24dp"
-                android:inputType="textVisiblePassword"
-                android:background="@drawable/login_edittext_background"
-                android:hint="密码"
-                android:textSize="24sp"
-                android:layout_weight="0.04"
-                android:paddingLeft="8dp"
-                android:textColor="@android:color/background_dark"
-                />
+
             <Button
                 android:layout_width="240dp"
                 android:layout_height="wrap_content"

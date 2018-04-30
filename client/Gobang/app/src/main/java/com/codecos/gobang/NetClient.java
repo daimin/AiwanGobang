@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
+import android.util.Base64;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -11,6 +12,7 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.net.Socket;
 import java.net.SocketException;
@@ -40,13 +42,13 @@ public class NetClient {
 	private boolean connected;
     private Socket mSocket;
     private BufferedInputStream mBufferedInputStream;
-    private BufferedOutputStream mBufferedOutputStream;
+    private PrintStream out;
 
     /*
       网络配置
      */
     public static final int PORT = 14395;
-    public static final String HOST = "127.0.0.1";
+    public static final String HOST = "192.168.199.102";
 
     //################################################################
 
@@ -78,7 +80,7 @@ public class NetClient {
 
     //###############################################################
 
-    public NetClient(Context ctx, Handler handler) {
+    public NetClient(Context ctx, Handler handler) throws IOException {
         this.ctx = ctx;
         this.mhandler = handler;
         connected();
@@ -110,36 +112,38 @@ public class NetClient {
     }
 
 
-
     public void send(short type, String msg, int what){
         this.mwhat = what;
         try {
-            byte[] strBuf = msg.getBytes();
-            ByteBuffer buff = ByteBuffer.allocate(strBuf.length + 6);
+            Log.i("NetClient", "send = " + msg);
+            byte[] strBuf = Base64.encode(msg.getBytes(), Base64.DEFAULT);
+//            byte[] strBuf = msg.getBytes();
+            byte[] dataBuf = new byte[strBuf.length + 6];
+            for(int i = 0; i < dataBuf.length ; i++){
+                dataBuf[0] = 0;
+            }
+
+            ByteBuffer buff = ByteBuffer.wrap(dataBuf);
             buff.putShort(type);
             buff.putInt(strBuf.length);
             buff.put(strBuf);
-            mBufferedOutputStream.write(buff.array());
-            mBufferedOutputStream.flush();
+            Log.i("NetClient", "bytes = " + Arrays.toString(buff.array()) + " dataType = " + type + " dataLen = " + strBuf.length);
+
+            out.write(buff.array());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
 
-	public void connected() {
-		try {
-			mSocket = new Socket(HOST, PORT);
-            mBufferedInputStream = new BufferedInputStream(mSocket.getInputStream());
-            mBufferedOutputStream = new BufferedOutputStream(mSocket.getOutputStream());
-			connected = true;
-			new Thread(new Receive()).start();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
+	public void connected() throws IOException {
+        mSocket = new Socket(HOST, PORT);
+        mSocket.setSoTimeout(1000 * 300);
+        mSocket.setKeepAlive(true);
+        mBufferedInputStream = new BufferedInputStream(mSocket.getInputStream());
+        out = new PrintStream(mSocket.getOutputStream());
+        connected = true;
+        new Thread(new Receive()).start();
 	}
 
 
@@ -147,8 +151,8 @@ public class NetClient {
 		try {
             if (mBufferedInputStream!= null)
                 mBufferedInputStream.close();
-            if (mBufferedOutputStream!= null)
-                mBufferedOutputStream.close();
+            if (out!= null)
+                out.close();
 			if (mSocket != null)
 				mSocket.close();
 		} catch (IOException e) {
@@ -169,7 +173,7 @@ public class NetClient {
             int dataLen = buff.getInt();
 
             Log.i("NetClient", "bytes = " + Arrays.toString(strBuf) + " dataType = " + dataType + " dataLen = " + dataLen);
-            String tmpe = new String(Arrays.copyOfRange(strBuf, 6, dataLen + 6));
+            String tmpe = new String(Base64.decode(Arrays.copyOfRange(strBuf, 6, dataLen + 6), Base64.DEFAULT));
             return new NetMessage(dataType, tmpe.trim());
         }
 

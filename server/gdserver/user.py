@@ -4,8 +4,8 @@ from __future__ import absolute_import, division, print_function, \
 
 __author__ = 'daimin'
 
-from gdserver import db
-from gdserver import  comm
+import db
+import  comm
 import time
 
 

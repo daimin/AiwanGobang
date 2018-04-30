@@ -1,10 +1,10 @@
 # coding:utf-8
 from __future__ import absolute_import, division, print_function, \
     with_statement
-from gdserver import protocol
-from gdserver import user
-from gdserver import message as msg
-from gdserver import conf
+import message as msg
+import user
+import conf
+import protocol
 import json
 import time
 

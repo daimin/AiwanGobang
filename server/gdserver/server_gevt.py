@@ -2,7 +2,7 @@
 from __future__ import absolute_import, division, print_function, \
     with_statement
 from gevent.server import StreamServer
-from gdserver import comm
+import comm
 import signal
 import gevent
 import sys
@@ -23,18 +23,22 @@ class JBServer(object):
     def mainloop(self, socket_, address):
         """mainloop方法对应每个客户端都是一个协程
         """
+        print("Client %s connect ... " % str(address))
         jb_sock = JBSocket(socket_, comm.tuple_as_md5(socket_.getpeername()))
         if jb_sock.sid not in JBServer.client_dict:
             self.client_dict[jb_sock.sid] = jb_sock
 
         while 1:
             try:
-                header_data = jb_sock.recv(4)
+                header_data = jb_sock.recv(6)
                 if header_data:
+                    print(repr(header_data))
                     tid, len_ = comm.struct_unpack(header_data)
+                    print("%s %s" % (str(tid), str(len_)))
                     content_data = jb_sock.recv(len_)
                     if content_data:
                         content_data = comm.unpack_data(content_data)
+                        print(content_data)
                         self.on_message(jb_sock, tid, content_data)
                 else:
                     break
@@ -105,4 +109,4 @@ class JBSocket(object):
         return self._data.get(k, None)
 
 if __name__ == '__main__':
-    JBServer().runserver('0.0.0.0', 5005)
+    JBServer().runserver('0.0.0.0', 14395)

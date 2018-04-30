@@ -23,7 +23,7 @@ import sys
 import logging
 import signal
 import time
-from gdserver import comm
+import comm
 
 # this module is ported from ShadowVPN daemon.c
 

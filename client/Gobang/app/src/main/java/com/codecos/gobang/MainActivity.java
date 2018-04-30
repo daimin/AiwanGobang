@@ -101,7 +101,7 @@ public class MainActivity extends Activity {
 
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, NetActivity.class);
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
                 MainActivity.this.finish();
             }

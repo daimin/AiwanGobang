@@ -5,74 +5,30 @@ from __future__ import absolute_import, division, print_function, \
 __author__ = 'daimin'
 
 import struct
-from gdserver import protocol, conf, message
-import msgpack
+import protocol, conf, message
 import random
-from Crypto.Cipher import AES
 import hashlib
 import logging
 import base64
-import zlib
 
 
 def pack_data(type_, data):
     print("=========" + data)
     data = str(data)
-    data = aes_encode(conf.AES_KEY, data)
     data = struct.pack("!HH", type_, len(data)) + data
     # print(repr(data))
     return data
 
 
 def struct_unpack(data):
-    return struct.unpack_from("!HH", data[:4])
+    return struct.unpack_from("!hi", data[:6])
 
 
 def unpack_data(data):
-    return aes_decode(conf.AES_KEY, data)
-
-
-def msgpack_pack(data):
-    return msgpack.packb(data)
-
-
-def msgpack_unpack(data):
-    return msgpack.unpackb(data)
-
-"""
-AES加密解密，支持AES/CBC/PKCS5Padding =======================================
-"""
-BS = 16
-pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
-unpad = lambda s : s[0:-ord(s[-1])]
-
-
-def aes_encode(key, data):
-    cryptor = AES.new(key, AES.MODE_CBC, "\0" * 16)
-
-    data = pad(data)
-    senddata = base64.encodestring(cryptor.encrypt(data))
-
-    return zlib.compress(senddata)
-
-
-def aes_decode(key, data):
-    data = base64.decodestring(zlib.decompress(data))
-    cryptor = AES.new(key, AES.MODE_CBC, "\0" * 16)
+    data = data.encode('utf-8')
+    data = base64.standard_b64decode(data)
     
-    plain_text  = unpad(cryptor.decrypt(data))
-    return plain_text.rstrip("\0")
-"""
-==============================================================================
-"""
-
-def create_nonce_str(length=16):
-    chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-    str_ = ''
-    for i in xrange(length):
-        rpos = random.randint(0, len(chars) - 1)
-        str_ = '%s%s' % (str_, chars[rpos : rpos + 1])
-    return str_
+    return data.rstrip("\0")
 
 
 def get_protocols():
