@@ -68,7 +68,7 @@ class Connection(object):
         self.database = database
         self.max_idle_time = float(max_idle_time)
         #add a logger
-        args = dict(conv=CONVERSIONS, use_unicode=True, charset="utf8",
+        args = dict(conv=CONVERSIONS, use_unicode=True, charset="utf8mb4",
                     db=database, init_command=('SET time_zone = "%s"' % time_zone),
                     connect_timeout=connect_timeout, sql_mode="TRADITIONAL")
         if user is not None:

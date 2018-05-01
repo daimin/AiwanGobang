@@ -2,6 +2,7 @@
 from __future__ import absolute_import, division, print_function, \
     with_statement
 from gevent.server import StreamServer
+from handler import *
 import comm
 import signal
 import gevent
@@ -12,13 +13,26 @@ __author__ = 'daimin'
 
 class JBServer(object):
 
+    _handlers = {}
     client_dict = {}
+    app_dict = {}
 
     def __init__(self):
-        pass
+        self._register_handlers()
 
-    def on_message(self, sock, type_, message):
-        pass
+    def _register_handlers(self):
+        print("Register handlers")
+        
+        self._handlers[protocol.DEFAULT.TID] = DefaultHandler(self)
+        self._handlers[protocol.VERSION.TID] = VersionHandler(self)
+        self._handlers[protocol.HEARTBEAT.TID] = HeartbeatHandler(self)
+        self._handlers[protocol.LOGIN.TID] = LoginHandler(self)
+
+    def on_message(self, sock, tid, message):
+        message = message.strip()
+        msg_obj = msg.Message(int(tid), data=message)
+        handler = self._handlers.get(tid, self._handlers[protocol.DEFAULT.TID])
+        handler.request(msg_obj, sock)
 
     def mainloop(self, socket_, address):
         """mainloop方法对应每个客户端都是一个协程
@@ -38,6 +52,8 @@ class JBServer(object):
                     content_data = jb_sock.recv(len_)
                     if content_data:
                         content_data = comm.unpack_data(content_data)
+                        if not content_data:
+                            continue
                         print(content_data)
                         self.on_message(jb_sock, tid, content_data)
                 else:
@@ -52,18 +68,25 @@ class JBServer(object):
         del JBServer.client_dict[jb_sock.sid]
 
     def finalize(self, sock_data):
-        pass
+        for k, h in self._handlers.iteritems():
+            h.finalize(sock_data)
+
+    def send_message(self, sock, msg_):
+        if msg_.TID < protocol.ERR_NONE:
+            self.do_send_message(sock, msg_.TID, msg_.data, msg_.echo)
+        else:
+            msg_.echo = msg_.data  # 可能默认是填写的data变量
+            self.do_send_message(sock, msg_.TID, None, msg_.echo)
 
     def do_send_message(self, sock, tid, message=None, echo_msg=None):
         # for sid, client_sock in JBServer.client_dict.iteritems():
         #     if client_sock is not sock:
         #         if message is not None:
         #             client_sock.sendall(comm.pack_data(tid, message))
-
         if echo_msg is not None:
             sock.sendall(comm.pack_data(tid, echo_msg))
-            for pairsock in sock.teams:
-                pairsock.sendall(comm.pack_data(tid, message))
+            #for pairsock in sock.teams:
+            #    pairsock.sendall(comm.pack_data(tid, message))
 
     def runserver(self, host, port):
         reload(sys)

@@ -13,11 +13,10 @@ import base64
 
 
 def pack_data(type_, data):
-    print("=========" + data)
-    data = str(data)
-    data = struct.pack("!HH", type_, len(data)) + data
-    # print(repr(data))
-    return data
+    encode_data = base64.standard_b64encode(data)
+    full_data = struct.pack("!hi", type_, len(encode_data)) + encode_data
+    print(repr(full_data))
+    return full_data
 
 
 def struct_unpack(data):
@@ -27,7 +26,6 @@ def struct_unpack(data):
 def unpack_data(data):
     data = data.encode('utf-8')
     data = base64.standard_b64decode(data)
-    
     return data.rstrip("\0")
 
 

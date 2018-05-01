@@ -71,7 +71,10 @@ class HeartbeatHandler(Handler):
 class LoginHandler(Handler):
 
     def record_loginuser(self, muser):
-        self._server.app_dict['login_users'][muser.name] = muser
+        if 'login_users' not in self._server.app_dict:
+            self._server.app_dict['login_users'] = {muser.name: muser}
+        else:
+            self._server.app_dict['login_users'][muser.name] = muser
 
     def check_islogin_in_other_client(self, uname):
         return self._server.app_dict['login_users'].get(uname, False)
@@ -83,32 +86,36 @@ class LoginHandler(Handler):
         if uobj:
             try:
                 uobj['name'] = uobj['name'].strip()
-                uobj['passwd'] = uobj['passwd'].strip()
+                uobj['passwd'] = ""
                 # 先检查当前用户是否已经登录
+                """
                 if self.check_islogin_in_other_client(uobj['name']):
                     return self.send_message(msg.Message(protocol.ERR_LOGIN_FAIL.TID, echo='当前用户已经在其它客户端登录'))
+                """
+                if uobj['name'] == '':
+                    return self.send_message(msg.Message(protocol.ERR_LOGIN_FAIL.TID, echo='用户名为空'))
 
-                if uobj['name'] == '' or uobj['passwd'] == '':
-                    return self.send_message(msg.Message(protocol.ERR_LOGIN_FAIL.TID, echo='用户名或密码为空'))
-
-                ouser = user.User.find_user_by_name(uobj['name'])
-                if ouser.passwd != uobj['passwd']:
-                    return self.send_message(msg.Message(protocol.ERR_LOGIN_FAIL.TID, echo='密码错误'))
-
-                if not ouser:
+                exist_user = user.User.find_user_by_name(uobj['name'])
+               
+                if not exist_user:
                     ouser = user.User(**uobj)
                     ouser.save()
+                else:
+                    return self.send_message(msg.Message(protocol.ERR_LOGIN_FAIL.TID, echo="用户已经存在")
+
                 ouser.sid = sock.sid
                 sock.set_data('login_user', ouser)
                 self.record_loginuser(ouser)
-                return self.send_message(self._obtain_s2c_msg(message.TID, data=None, echo=uobj['name']))
+                return self.send_message(self._obtain_s2c_msg(message.TID, data=None, echo=json.dumps({"id" : ouser.id, "name" : ouser.name, "score" : ouser.score})))
             except Exception, oe:
+                print(oe)
                 return self.send_message(msg.Message(protocol.ERR_LOGIN_FAIL.TID, echo=str(oe)))
 
-        return self.send_message(msg.Message(protocol.ERR_LOGIN_FAIL.TID, echo=str(uobj) + ",登录失败"))  # 发送登录错误
+        return self.send_message(msg.Message(protocol.ERR_LOGIN_FAIL.TID, echo=str(uobj) + ",注册失败"))  # 发送登录错误
 
     def finalize(self, sock_data):
-        loguser = sock_data.get_data('login_user')
-        if loguser.name in self._server.app_dict['login_users']:
-            print("Finalize socket login data")
-            del self._server.app_dict['login_users'][loguser.name]
+        pass
+        # loguser = sock_data.get_data('login_user')
+        # if loguser.name in self._server.app_dict['login_users']:
+        #     print("Finalize socket login data")
+        #     del self._server.app_dict['login_users'][loguser.name]

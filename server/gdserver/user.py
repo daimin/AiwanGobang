@@ -18,37 +18,25 @@ class User(db.Db):
     PLAYING_ACTION = 2
     CHATTING_ACTION = 3
 
-    tabname = 'c_user'
+    tabname = 'gb_user'
     conn = None
 
     id = ''
     sid = None # socket id
     name = ''
     passwd = ''
-    sex = ''
     score = ''
-    grade = ''
-    phone = ''
-    devid = ''
-    country = ''
-    city = ''
 
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', '')
         self.sid = kwargs.get('sid', None)
         self.name = kwargs.get('name', '')
         self.passwd = kwargs.get('passwd', '')
-        self.sex = kwargs.get('sex', 2) # 0 女，1 男，2未知
         self.score = kwargs.get('score', 0)
-        self.grade = kwargs.get('grade', 1)
-        self.phone = kwargs.get('phone', '')
-        self.devid = kwargs.get('devid', '')
-        self.country = kwargs.get('country', '')
-        self.city = kwargs.get('city', '')
-        self.ctime = kwargs.get('ctime', 0)
-        self.utime = kwargs.get('utime', 0)
-        self.ltime = kwargs.get('ltime', 0)
-        self.status = kwargs.get('status', User.NORMAL_STATUS)
+        # self.ctime = kwargs.get('ctime', 0)
+        # self.utime = kwargs.get('utime', 0)
+        # self.ltime = kwargs.get('ltime', 0)
+        # self.status = kwargs.get('status', User.NORMAL_STATUS)
         self.action = self.READY_ACTION
 
         self._dbconn = kwargs.get('conn', None)
@@ -65,17 +53,13 @@ class User(db.Db):
             if not u:
                 self.ctime = int(time.time())
                 self.utime = self.ctime
-                self.id = self._dbconn.insert("INSERT INTO `%s`(`name`, `passwd`, `sex`, `score`, `grade`, `phone`, `devid`,"
-                                    " `country`, `city`, `ctime`, `utime`, `ltime`, `status`) VALUES('%s', '%s', '%s',"
-                                    " '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')"
-                                    % (self.tabname, self.name, self.passwd, self.sex, self.score, self.grade,
-                                       self.phone, self.devid, self.country, self.city, self.ctime, self.utime,
-                    self.ltime, self.status))
+                self.id = self._dbconn.insert("INSERT INTO `%s`(`name`, `passwd`, `score`) VALUES('%s', '%s', '%s')" % (self.tabname, self.name, self.passwd, self.score))
                 return self.id
             else:
                 self.id = u.id
                 self.utime = int(time.time())
-                return self.update()
+                self.update()
+                return self.id
 
     def update(self):
         return self._dbconn.update("UPDATE  `%s` SET `name`='%s', `passwd`='%s', `sex`='%s', `score`='%s', `grade`='%s',\

@@ -11,7 +11,7 @@ MYSQL_CONFIG = {
     'port' : 3306,
     'user' : 'root',
     'passwd' : 'dai253685',
-    'db' : 'golang',
+    'db' : 'gobang',
 }
 
 
